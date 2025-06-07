@@ -45,6 +45,19 @@
         @media print {
             body { margin: 0; padding: 0; -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
             #help-container, #controlsArea, .label-controls, title, #printSettingsAreaTitle, #printSettingsInputs { display: none !important; visibility: hidden !important; }
+            #printHeader {
+                display: block !important;
+                visibility: visible !important;
+                text-align: center;
+                font-size: 14pt;
+                font-weight: bold;
+                width: 100%;
+                padding: 5mm 5mm 0 5mm; /* Top padding */
+                box-sizing: border-box;
+            }
+            #a4PreviewContainerWrapper {
+                padding-top: 5mm !important; /* Space between header and labels */
+            }
             #a4PreviewContainer, #a4PreviewContainer * { visibility: visible !important; }
             #a4PreviewContainer {
                 position: absolute !important; left: 0 !important; top: 0 !important; width: 210mm !important;
@@ -80,11 +93,11 @@
         <div id="help-tooltip" class="absolute bottom-0 left-20 w-80 p-4 bg-gray-800 text-white text-sm rounded-lg shadow-xl opacity-0 invisible transition-all duration-300 transform -translate-x-4">
             <h4 class="font-bold mb-2 text-base">Instruções de Uso</h4>
             <ul class="list-disc list-inside space-y-1">
-                <li>Use '<b>+ Adicionar Nova Linha</b>' para criar campos.</li>
-                <li>Defina o texto, estilo (<b>N, I, S</b>) e <b>alinhamento</b>.</li>
+                <li>Use '<b>+ Adicionar Nova Linha</b>' para criar campos de texto.</li>
+                <li>Adicione um <b>Título</b> opcional que aparecerá no topo da página.</li>
                 <li>Clique em '<b>Adicionar Etiqueta</b>' para criar uma etiqueta.</li>
-                <li>Ajuste a <b>Largura</b> e <b>Altura</b> da etiqueta.</li>
-                <li>Ajuste a '<b>Fonte</b>' e '<b>Espaç. Linhas</b>' para a impressão.</li>
+                <li>Ajuste a <b>Largura</b>, <b>Altura</b>, <b>Fonte</b> e <b>Espaç. Linhas</b> para a impressão.</li>
+                <li>Edite (✏️) ou exclua (🗑️) etiquetas na área de visualização.</li>
             </ul>
             <p class="mt-3 border-t border-gray-600 pt-2 text-xs italic">
                 <strong>Dica de Impressão:</strong> Para 4 linhas em uma etiqueta de 20x10mm, uma fonte de <b>6pt</b> é ideal. Para mais linhas ou tamanhos diferentes, ajuste a fonte.
@@ -120,9 +133,14 @@
 
             <div class="bg-white p-6 rounded-lg shadow-xl">
                 <div class="flex flex-col sm:flex-row justify-between items-center mb-4">
-                    <h2 id="printSettingsAreaTitle" class="text-2xl font-semibold text-gray-700 mb-4 sm:mb-0">Visualização e Impressão (A4)</h2>
+                    <h2 id="printSettingsAreaTitle" class="text-2xl font-semibold text-gray-700 mb-4 sm:mb-0">Configurações de Impressão</h2>
                 </div>
-                <div id="printSettingsInputs" class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-6 border-t border-b border-gray-200 py-4">
+                <div id="printSettingsInputs" class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-6 border-t pt-6">
+                     <div>
+                        <label for="printHeaderText" class="block text-sm font-medium text-gray-700">Texto do Cabeçalho (Opcional):</label>
+                        <input type="text" id="printHeaderText" placeholder="" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 h-10">
+                    </div>
+                    <div></div> <!-- Empty cell for alignment -->
                      <div>
                         <label for="printLabelWidth" class="block text-sm font-medium text-gray-700">Largura Etiqueta (mm):</label>
                         <input type="number" id="printLabelWidth" value="20" step="1" min="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 h-10">
@@ -146,6 +164,7 @@
             </div>
         </div>
 
+        <div id="printHeader" class="hidden"></div>
         <div id="a4PreviewContainerWrapper" class="flex justify-center">
             <div id="a4PreviewContainer" class="bg-white shadow-2xl rounded-sm p-2 mx-auto overflow-y-auto" style="width: 210mm; min-height: 297mm; border: 1px solid #ccc; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 1mm; padding: 5mm;">
                  <p id="emptyMessage" class="text-center text-gray-500 italic p-10 w-full">Nenhuma etiqueta adicionada. Use o formulário acima.</p>
@@ -163,6 +182,7 @@
             const a4PreviewContainer = document.getElementById('a4PreviewContainer');
             const emptyMessage = document.getElementById('emptyMessage');
             
+            const printHeaderText_Input = document.getElementById('printHeaderText');
             const printLabelWidthInput = document.getElementById('printLabelWidth');
             const printLabelHeightInput = document.getElementById('printLabelHeight');
             const printFontSizeInput = document.getElementById('printFontSize');
@@ -323,6 +343,9 @@
             };
 
             printBtn.addEventListener('click', () => {
+                const headerText = printHeaderText_Input.value;
+                document.getElementById('printHeader').textContent = headerText;
+
                 const labelWidth = printLabelWidthInput.value;
                 const labelHeight = printLabelHeightInput.value;
                 const fontSize = printFontSizeInput.value;
@@ -330,6 +353,9 @@
 
                 dynamicPrintStylesTag.innerHTML = `
                     @media print {
+                        #a4PreviewContainer {
+                            padding-top: ${headerText ? '20mm' : '5mm'} !important; /* Add space for header only if it exists */
+                        }
                         #a4PreviewContainer > .label-preview-item { 
                             width: ${labelWidth}mm !important;
                             height: ${labelHeight}mm !important;
