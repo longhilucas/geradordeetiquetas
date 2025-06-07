@@ -33,10 +33,17 @@
         .line-input-group {
              transition: all 0.3s ease-in-out;
         }
+        
+        /* Help Button Styles */
+        #help-container:hover #help-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
 
         @media print {
             body { margin: 0; padding: 0; -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
-            #controlsArea, .label-controls, title, #printSettingsAreaTitle, #printSettingsInputs { display: none !important; visibility: hidden !important; }
+            #help-container, #controlsArea, .label-controls, title, #printSettingsAreaTitle, #printSettingsInputs { display: none !important; visibility: hidden !important; }
             #a4PreviewContainer, #a4PreviewContainer * { visibility: visible !important; }
             #a4PreviewContainer {
                 position: absolute !important; left: 0 !important; top: 0 !important; width: 210mm !important;
@@ -62,6 +69,28 @@
     <style id="dynamicPrintStyles"></style>
 </head>
 <body class="bg-gray-200">
+
+    <!-- Floating Help Button -->
+    <div id="help-container" class="fixed bottom-6 left-6 z-50">
+        <div id="help-button" class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg cursor-pointer select-none">
+            ?
+        </div>
+        <div id="help-tooltip" class="absolute bottom-0 left-20 w-80 p-4 bg-gray-800 text-white text-sm rounded-lg shadow-xl opacity-0 invisible transition-all duration-300 transform -translate-x-4">
+            <h4 class="font-bold mb-2 text-base">Instruções de Uso</h4>
+            <ul class="list-disc list-inside space-y-1">
+                <li>Use o botão '<b>+ Adicionar Nova Linha</b>' para criar campos.</li>
+                <li>Preencha o texto e defina o estilo (<b>N, I, S</b>) e o <b>alinhamento</b> para cada linha.</li>
+                <li>Clique em '<b>Adicionar Etiqueta</b>' para vê-la na área de impressão.</li>
+                <li>Edite (✏️) ou exclua (🗑️) etiquetas passando o mouse sobre elas na visualização.</li>
+                <li>Ajuste a '<b>Fonte</b>' e '<b>Espaç. Linhas</b>' antes de imprimir para um ajuste fino.</li>
+            </ul>
+            <p class="mt-3 border-t border-gray-600 pt-2 text-xs italic">
+                <strong>Dica de Impressão:</strong> Para 4 linhas, uma fonte de <b>6pt</b> é ideal. Para mais linhas, reduza o tamanho da fonte para um melhor resultado.
+            </p>
+        </div>
+    </div>
+
+
     <div class="container mx-auto p-4 md:p-8 max-w-5xl">
         <div id="controlsArea" class="mb-6">
             <div class="bg-white p-6 rounded-lg shadow-xl mb-6">
@@ -94,7 +123,7 @@
                 <div id="printSettingsInputs" class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-6 border-t border-b border-gray-200 py-4">
                     <div>
                         <label for="printFontSize" class="block text-sm font-medium text-gray-700">Fonte Impressão (pt):</label>
-                        <input type="number" id="printFontSize" value="3" step="0.1" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 h-10">
+                        <input type="number" id="printFontSize" value="6" step="0.1" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 h-10">
                     </div>
                     <div>
                         <label for="printLineHeight" class="block text-sm font-medium text-gray-700">Espaç. Linhas (x):</label>
