@@ -8,7 +8,8 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .label-preview-item {
-            width: 2cm; height: 1cm; border: 1px dashed #cbd5e0; background-color: #f7fafc;
+            /* width & height are now set by JS */
+            border: 1px dashed #cbd5e0; background-color: #f7fafc;
             margin: 2px; padding: 1mm; box-sizing: border-box; font-size: 7pt;
             overflow: hidden; display: flex; flex-direction: column; justify-content: center;
             align-items: flex-start; /* Keeps the start of the line at the left edge */
@@ -53,7 +54,8 @@
                 background-color: white !important; overflow: visible !important;
             }
             #a4PreviewContainer > .label-preview-item {
-                width: 20mm !important; height: 10mm !important; border: 0.1mm solid black !important;
+                /* width & height are set by JS */
+                border: 0.1mm solid black !important;
                 background-color: white !important; margin: 0 !important; padding: 0.5mm !important;
                 box-sizing: border-box !important; overflow: hidden !important; display: flex !important;
                 flex-direction: column !important; justify-content: center !important;
@@ -78,14 +80,14 @@
         <div id="help-tooltip" class="absolute bottom-0 left-20 w-80 p-4 bg-gray-800 text-white text-sm rounded-lg shadow-xl opacity-0 invisible transition-all duration-300 transform -translate-x-4">
             <h4 class="font-bold mb-2 text-base">Instruções de Uso</h4>
             <ul class="list-disc list-inside space-y-1">
-                <li>Use o botão '<b>+ Adicionar Nova Linha</b>' para criar campos.</li>
-                <li>Preencha o texto e defina o estilo (<b>N, I, S</b>) e o <b>alinhamento</b> para cada linha.</li>
-                <li>Clique em '<b>Adicionar Etiqueta</b>' para vê-la na área de impressão.</li>
-                <li>Edite (✏️) ou exclua (🗑️) etiquetas passando o mouse sobre elas na visualização.</li>
-                <li>Ajuste a '<b>Fonte</b>' e '<b>Espaç. Linhas</b>' antes de imprimir para um ajuste fino.</li>
+                <li>Use '<b>+ Adicionar Nova Linha</b>' para criar campos.</li>
+                <li>Defina o texto, estilo (<b>N, I, S</b>) e <b>alinhamento</b>.</li>
+                <li>Clique em '<b>Adicionar Etiqueta</b>' para criar uma etiqueta.</li>
+                <li>Ajuste a <b>Largura</b> e <b>Altura</b> da etiqueta.</li>
+                <li>Ajuste a '<b>Fonte</b>' e '<b>Espaç. Linhas</b>' para a impressão.</li>
             </ul>
             <p class="mt-3 border-t border-gray-600 pt-2 text-xs italic">
-                <strong>Dica de Impressão:</strong> Para 4 linhas, uma fonte de <b>6pt</b> é ideal. Para mais linhas, reduza o tamanho da fonte para um melhor resultado.
+                <strong>Dica de Impressão:</strong> Para 4 linhas em uma etiqueta de 20x10mm, uma fonte de <b>6pt</b> é ideal. Para mais linhas ou tamanhos diferentes, ajuste a fonte.
             </p>
         </div>
     </div>
@@ -121,6 +123,14 @@
                     <h2 id="printSettingsAreaTitle" class="text-2xl font-semibold text-gray-700 mb-4 sm:mb-0">Visualização e Impressão (A4)</h2>
                 </div>
                 <div id="printSettingsInputs" class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-6 border-t border-b border-gray-200 py-4">
+                     <div>
+                        <label for="printLabelWidth" class="block text-sm font-medium text-gray-700">Largura Etiqueta (mm):</label>
+                        <input type="number" id="printLabelWidth" value="20" step="1" min="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 h-10">
+                    </div>
+                    <div>
+                        <label for="printLabelHeight" class="block text-sm font-medium text-gray-700">Altura Etiqueta (mm):</label>
+                        <input type="number" id="printLabelHeight" value="10" step="1" min="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 h-10">
+                    </div>
                     <div>
                         <label for="printFontSize" class="block text-sm font-medium text-gray-700">Fonte Impressão (pt):</label>
                         <input type="number" id="printFontSize" value="6" step="0.1" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 h-10">
@@ -152,6 +162,9 @@
             const printBtn = document.getElementById('printBtn');
             const a4PreviewContainer = document.getElementById('a4PreviewContainer');
             const emptyMessage = document.getElementById('emptyMessage');
+            
+            const printLabelWidthInput = document.getElementById('printLabelWidth');
+            const printLabelHeightInput = document.getElementById('printLabelHeight');
             const printFontSizeInput = document.getElementById('printFontSize');
             const printLineHeightInput = document.getElementById('printLineHeight');
             const dynamicPrintStylesTag = document.getElementById('dynamicPrintStyles');
@@ -162,7 +175,7 @@
             const escapeHtml = (unsafe) => (unsafe ?? '').toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 
             const createLineInputBlock = (lineData = { text: '', bold: false, italic: false, underline: false, align: 'left' }) => {
-                const lineId = 'line-' + Date.now() + Math.random(); // Unique ID for radio group name
+                const lineId = 'line-' + Date.now() + Math.random();
                 const div = document.createElement('div');
                 div.className = 'line-input-group border border-gray-200 p-3 rounded-md relative';
                 div.innerHTML = `
@@ -217,6 +230,9 @@
             };
             
             const renderLabels = () => {
+                const labelWidth = printLabelWidthInput.value;
+                const labelHeight = printLabelHeightInput.value;
+
                 a4PreviewContainer.innerHTML = ''; 
                 if (labels.length === 0) {
                     a4PreviewContainer.appendChild(emptyMessage);
@@ -227,6 +243,8 @@
                         const labelDiv = document.createElement('div');
                         labelDiv.className = 'label-preview-item'; 
                         labelDiv.dataset.id = label.id;
+                        labelDiv.style.width = `${labelWidth}mm`;
+                        labelDiv.style.height = `${labelHeight}mm`;
                         
                         let labelHTML = label.lines.map(lineData => {
                             let style = '';
@@ -247,6 +265,10 @@
                     });
                 }
             };
+
+            [printLabelWidthInput, printLabelHeightInput].forEach(input => {
+                input.addEventListener('input', renderLabels);
+            });
 
             addNewLineBtn.addEventListener('click', () => createLineInputBlock());
 
@@ -301,12 +323,21 @@
             };
 
             printBtn.addEventListener('click', () => {
+                const labelWidth = printLabelWidthInput.value;
+                const labelHeight = printLabelHeightInput.value;
                 const fontSize = printFontSizeInput.value;
                 const lineHeight = printLineHeightInput.value;
+
                 dynamicPrintStylesTag.innerHTML = `
                     @media print {
-                        #a4PreviewContainer > .label-preview-item { font-size: ${fontSize}pt !important; }
-                        #a4PreviewContainer > .label-preview-item > .line { line-height: ${lineHeight} !important; }
+                        #a4PreviewContainer > .label-preview-item { 
+                            width: ${labelWidth}mm !important;
+                            height: ${labelHeight}mm !important;
+                            font-size: ${fontSize}pt !important;
+                        }
+                        #a4PreviewContainer > .label-preview-item > .line { 
+                            line-height: ${lineHeight} !important;
+                        }
                     }`;
                 window.print(); 
             });
