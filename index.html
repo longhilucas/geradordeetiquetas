@@ -12,7 +12,7 @@
         }
         .label-preview-item {
             border: 1px dashed #cbd5e0; background-color: #f7fafc;
-            margin: 2px; box-sizing: border-box; font-size: 7pt;
+            margin: 2px; box-sizing: border-box;
             overflow: hidden; display: flex; 
         }
         .date-area {
@@ -25,7 +25,7 @@
             flex-grow: 1; overflow: hidden; padding-left: 1mm;
         }
         .lines-area .line {
-            width: 100%; overflow: hidden; text-overflow: ellipsis; line-height: 1.1;
+            width: 100%; overflow: hidden; text-overflow: ellipsis;
         }
         .separator-preview-item {
             width: 100%; text-align: center; font-weight: bold; font-size: 9pt;
@@ -47,10 +47,13 @@
         #help-container:hover #help-tooltip {
             opacity: 1; visibility: visible; transform: translateX(0);
         }
+        .item-selection-checkbox {
+            position: absolute; top: 2px; left: 2px; z-index: 11;
+        }
 
         @media print {
             body { margin: 0; padding: 0; -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
-            #help-container, #controlsArea, .item-controls, title { display: none !important; }
+            #help-container, #controlsArea, .item-controls, .item-selection-checkbox, title { display: none !important; }
             #a4PreviewContainer, #a4PreviewContainer * { visibility: visible !important; }
             #a4PreviewContainer {
                 position: absolute !important; left: 0 !important; top: 0 !important; width: 210mm !important;
@@ -60,7 +63,6 @@
                 background-color: white !important; overflow: visible !important;
             }
             #a4PreviewContainer > .label-preview-item {
-                /* width, height, font-size are applied inline via JS */
                 border: 0.1mm solid black !important;
                 background-color: white !important; margin: 2px !important; 
                 box-sizing: border-box !important; overflow: hidden !important; display: flex !important;
@@ -71,12 +73,9 @@
                 page-break-after: avoid !important;
             }
             .date-area {
-                border-right-width: 0.1mm !important;
-                border-right-style: solid !important;
-                border-right-color: black !important;
+                border-right: 0.1mm solid black !important;
             }
             .lines-area .line {
-                /* line-height is applied inline via JS */
                 width: 100% !important; overflow: hidden !important; text-overflow: ellipsis !important;
                 word-break: break-all !important; margin: 0 !important; padding: 0 !important; color: black !important;
             }
@@ -91,22 +90,19 @@
         <div id="help-tooltip" class="absolute bottom-0 left-20 w-96 p-4 bg-gray-800 text-white text-sm rounded-lg shadow-xl opacity-0 invisible transition-all duration-300 transform -translate-x-4">
             <h4 class="font-bold mb-3 text-base border-b border-gray-600 pb-2">Guia Rápido da Ferramenta</h4>
             
-            <p class="font-semibold text-blue-300 mb-1">1. Configurando sua Etiqueta</p>
+            <p class="font-semibold text-blue-300 mb-1">1. Criando Itens</p>
             <ul class="list-disc list-inside space-y-2 pl-2 text-xs">
-                <li><b>Defina o Formato:</b> Nos primeiros campos, configure todas as propriedades da etiqueta que irá criar: <b>Largura</b>, <b>Altura</b>, <b>Fonte</b> e <b>Espaçamento</b> entre as linhas.</li>
-                <li><b>Data Vertical (Opcional):</b> Preencha este campo para que a etiqueta tenha uma coluna lateral com a data escrita "de pé". Uma linha divisória será adicionada na impressão.</li>
-                <li><b>Conteúdo Principal:</b> Use o botão <b>'+ Adicionar Nova Linha'</b> para criar os campos de texto. Em cada um, defina o conteúdo, o estilo (<b>N</b>egrito, <b>I</b>tálico, <b>S</b>ublinhado) e o <b>alinhamento</b>.</li>
+                <li><b>Configure a Etiqueta:</b> Defina todas as propriedades da etiqueta: <b>Largura</b>, <b>Altura</b>, <b>Fonte</b>, <b>Espaçamento</b> e a <b>Data</b> (opcional).</li>
+                <li><b>Adicione o Conteúdo:</b> Use <b>'+ Adicionar Nova Linha'</b> para criar os campos de texto com seus estilos e alinhamentos.</li>
+                <li><b>Adicione à Folha:</b> Clique em <b>'Adicionar Etiqueta'</b>. As configurações atuais serão salvas com essa etiqueta. O formulário não é limpo, facilitando a criação de etiquetas sequenciais.</li>
             </ul>
 
-            <p class="font-semibold text-blue-300 mt-4 mb-1">2. Montando a Folha de Impressão</p>
+            <p class="font-semibold text-blue-300 mt-4 mb-1">2. Edição e Impressão</p>
             <ul class="list-disc list-inside space-y-2 pl-2 text-xs">
-                <li><b>Adicionar Etiqueta:</b> Após configurar, clique em <b>'Adicionar Etiqueta à Folha'</b>. As configurações atuais serão salvas com essa etiqueta. O formulário não limpa, permitindo criar etiquetas em sequência rapidamente.</li>
-                <li><b>Criar Separadores:</b> Para organizar sua folha (ex: por tipo de material), digite um título no campo <b>'Texto Separador'</b> e clique para adicioná-lo.</li>
-                <li><b>Edição e Exclusão:</b> Na folha de visualização, passe o mouse sobre qualquer item para ver os controles. Clique no lápis (✏️) para editar uma etiqueta ou na lixeira (🗑️) para remover qualquer item.</li>
+                <li><b>Edição Individual:</b> Passe o mouse sobre uma etiqueta e clique no lápis (✏️) para carregar seus dados no formulário e editá-la.</li>
+                <li><b>Edição em Massa:</b> Marque a caixa de seleção no canto das etiquetas que deseja alterar. Um painel de <b>'Edição em Massa'</b> aparecerá. Defina a nova fonte/espaçamento e clique em <b>'Aplicar'</b>.</li>
+                <li><b>Imprimir:</b> Após organizar sua folha, clique em <b>'Imprimir Folha'</b>.</li>
             </ul>
-             <p class="mt-4 border-t border-gray-600 pt-2 text-xs italic">
-                <strong>Dica de Impressão:</strong> Para uma etiqueta padrão (20x10mm) com 4 linhas, uma fonte de <b>6pt</b> com espaçamento de <b>1.0</b> costuma funcionar bem. Ajuste conforme necessário!
-            </p>
         </div>
     </div>
 
@@ -115,7 +111,6 @@
             <div class="bg-white p-6 rounded-lg shadow-xl mb-6">
                 <h1 class="text-3xl font-bold mb-6 text-center text-gray-700">Criador de Etiqueta</h1>
                 
-                <!-- Label Creator -->
                 <div class="border-b-2 border-dashed pb-6">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div>
@@ -152,7 +147,6 @@
                     </div>
                 </div>
 
-                <!-- Separator Creator -->
                 <div class="pt-6">
                      <div class="mb-4">
                         <label for="separatorText" class="block text-sm font-medium text-gray-700">Texto Separador</label>
@@ -168,8 +162,29 @@
                 </button>
             </div>
 
+            <div id="bulkEditPanel" class="hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg shadow-xl mb-6">
+                <h3 class="font-bold mb-2">Editar Itens Selecionados</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="bulkFontSize" class="block text-sm font-medium">Nova Fonte (pt):</label>
+                        <input type="number" id="bulkFontSize" step="0.1" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 h-10">
+                    </div>
+                    <div>
+                        <label for="bulkLineHeight" class="block text-sm font-medium">Novo Espaç. Linhas (x):</label>
+                        <input type="number" id="bulkLineHeight" step="0.1" min="0.5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 h-10">
+                    </div>
+                </div>
+                <button id="applyBulkEditBtn" class="w-full mt-4 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md">
+                    Aplicar aos Selecionados
+                </button>
+            </div>
+
             <div class="bg-white p-6 rounded-lg shadow-xl">
-                 <h2 class="text-2xl font-semibold text-gray-700 mb-4">Impressão</h2>
+                 <h2 class="text-2xl font-semibold text-gray-700 mb-4">Folha de Impressão</h2>
+                 <div class="flex items-center mb-4">
+                    <input type="checkbox" id="selectAllCheckbox" class="h-4 w-4 rounded mr-2">
+                    <label for="selectAllCheckbox">Selecionar/Desmarcar Todas</label>
+                 </div>
                  <button id="printBtn" class="w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md">
                     Imprimir Folha
                 </button>
@@ -201,6 +216,12 @@
             const labelFontSizeInput = document.getElementById('labelFontSize');
             const labelLineHeightInput = document.getElementById('labelLineHeight');
             const dynamicPrintStylesTag = document.getElementById('dynamicPrintStyles');
+
+            const bulkEditPanel = document.getElementById('bulkEditPanel');
+            const bulkFontSizeInput = document.getElementById('bulkFontSize');
+            const bulkLineHeightInput = document.getElementById('bulkLineHeight');
+            const applyBulkEditBtn = document.getElementById('applyBulkEditBtn');
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
 
             let printItems = []; 
             let editingLabelId = null; 
@@ -288,6 +309,7 @@
                             labelDiv.dataset.id = item.id;
                             labelDiv.style.width = `${item.width}mm`;
                             labelDiv.style.height = `${item.height}mm`;
+                            labelDiv.style.fontSize = `${item.fontSize}pt`;
 
                             const dateArea = document.createElement('div');
                             dateArea.className = 'date-area';
@@ -308,11 +330,17 @@
                                 lineDiv.style.fontStyle = lineData.italic ? 'italic' : 'normal';
                                 lineDiv.style.textDecoration = lineData.underline ? 'underline' : 'none';
                                 lineDiv.style.textAlign = lineData.align || 'left';
+                                lineDiv.style.lineHeight = item.lineHeight;
                                 lineDiv.textContent = escapeHtml(lineData.text);
                                 linesArea.appendChild(lineDiv);
                             });
                             
-                            const controlsHTML = `<div class="item-controls"><button class="edit-btn" title="Editar">✏️</button><button class="delete-btn" title="Excluir">🗑️</button></div>`;
+                            const controlsHTML = `
+                                <input type="checkbox" class="item-selection-checkbox" data-id="${item.id}">
+                                <div class="item-controls">
+                                    <button class="edit-btn" title="Editar">✏️</button>
+                                    <button class="delete-btn" title="Excluir">🗑️</button>
+                                </div>`;
                             
                             labelDiv.appendChild(dateArea);
                             labelDiv.appendChild(linesArea);
@@ -333,7 +361,49 @@
                         }
                     });
                 }
+                updateBulkEditPanelVisibility();
             };
+
+            const updateBulkEditPanelVisibility = () => {
+                const selected = a4PreviewContainer.querySelectorAll('.item-selection-checkbox:checked').length;
+                if (selected > 0) {
+                    bulkEditPanel.classList.remove('hidden');
+                } else {
+                    bulkEditPanel.classList.add('hidden');
+                }
+            };
+
+            a4PreviewContainer.addEventListener('change', (e) => {
+                if (e.target.classList.contains('item-selection-checkbox')) {
+                    updateBulkEditPanelVisibility();
+                }
+            });
+            
+            selectAllCheckbox.addEventListener('change', (e) => {
+                a4PreviewContainer.querySelectorAll('.item-selection-checkbox').forEach(cb => {
+                    cb.checked = e.target.checked;
+                });
+                updateBulkEditPanelVisibility();
+            });
+
+            applyBulkEditBtn.addEventListener('click', () => {
+                const newFontSize = bulkFontSizeInput.value;
+                const newLineHeight = bulkLineHeightInput.value;
+                const selectedCheckboxes = a4PreviewContainer.querySelectorAll('.item-selection-checkbox:checked');
+
+                selectedCheckboxes.forEach(cb => {
+                    const id = parseInt(cb.dataset.id);
+                    const item = printItems.find(i => i.id === id);
+                    if (item && item.type === 'label') {
+                        if (newFontSize) item.fontSize = newFontSize;
+                        if (newLineHeight) item.lineHeight = newLineHeight;
+                    }
+                });
+                renderPreview();
+                bulkFontSizeInput.value = '';
+                bulkLineHeightInput.value = '';
+                selectAllCheckbox.checked = false;
+            });
 
             addNewLineBtn.addEventListener('click', () => createLineInputBlock());
 
@@ -341,13 +411,11 @@
                 const currentData = getLabelFormInputs();
                 if (editingLabelId !== null) {
                     const itemIndex = printItems.findIndex(item => item.id === editingLabelId);
-                    if (itemIndex > -1) {
-                         printItems[itemIndex] = { ...printItems[itemIndex], ...currentData };
-                    }
+                    if (itemIndex > -1) printItems[itemIndex] = { ...printItems[itemIndex], ...currentData };
                     editingLabelId = null; 
                     addLabelBtn.textContent = 'Adicionar Etiqueta à Folha'; 
-                    addLabelBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600'); 
-                    addLabelBtn.classList.add('bg-blue-600', 'hover:bg-blue-700'); 
+                    addLabelBtn.classList.remove('bg-yellow-500'); 
+                    addLabelBtn.classList.add('bg-blue-600'); 
                     clearLabelForm();
                 } else {
                     printItems.push({ type: 'label', id: Date.now(), ...currentData });
@@ -370,8 +438,8 @@
                 if (editingLabelId !== null) { 
                     editingLabelId = null;
                     addLabelBtn.textContent = 'Adicionar Etiqueta à Folha';
-                    addLabelBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-                    addLabelBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                    addLabelBtn.classList.remove('bg-yellow-500');
+                    addLabelBtn.classList.add('bg-blue-600');
                 }
             });
             
@@ -381,8 +449,8 @@
                     setLabelFormInputs(item);
                     editingLabelId = id; 
                     addLabelBtn.textContent = 'Atualizar Etiqueta na Folha'; 
-                    addLabelBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                    addLabelBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600'); 
+                    addLabelBtn.classList.remove('bg-blue-600');
+                    addLabelBtn.classList.add('bg-yellow-500'); 
                     dateInput.focus();
                     document.getElementById('controlsArea').scrollIntoView({ behavior: 'smooth' }); 
                 }
@@ -394,8 +462,8 @@
                     clearLabelForm();
                     editingLabelId = null;
                     addLabelBtn.textContent = 'Adicionar Etiqueta à Folha';
-                    addLabelBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-                    addLabelBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                    addLabelBtn.classList.remove('bg-yellow-500');
+                    addLabelBtn.classList.add('bg-blue-600');
                 }
                 renderPreview(); 
             };
@@ -404,6 +472,14 @@
                 let dynamicStyles = '';
                 printItems.forEach(item => {
                     if (item.type === 'label') {
+                        let dateAreaStyle = '';
+                        if (item.date && item.date.trim() !== '') {
+                            dateAreaStyle = `
+                                border-right: 0.1mm solid black !important;
+                                padding: 0.5mm !important;
+                            `;
+                        }
+
                         dynamicStyles += `
                         #a4PreviewContainer > .label-preview-item[data-id="${item.id}"] { 
                             width: ${item.width}mm !important;
@@ -411,7 +487,9 @@
                             font-size: ${item.fontSize}pt !important;
                             padding: 0 !important;
                         }
-                        #a4PreviewContainer > .label-preview-item[data-id="${item.id}"] > .date-area { padding: 0.5mm !important; }
+                        #a4PreviewContainer > .label-preview-item[data-id="${item.id}"] > .date-area { 
+                            ${dateAreaStyle} 
+                        }
                         #a4PreviewContainer > .label-preview-item[data-id="${item.id}"] > .lines-area { padding-left: 1mm !important; }
                         #a4PreviewContainer > .label-preview-item[data-id="${item.id}"] .line { line-height: ${item.lineHeight} !important; }
                         `;
@@ -422,7 +500,6 @@
                 window.print(); 
             });
             
-            // Initial setup
             clearLabelForm();
             renderPreview();
         });
