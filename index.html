@@ -50,6 +50,9 @@
         .item-selection-checkbox {
             position: absolute; top: 2px; left: 2px; z-index: 11;
         }
+        .auto-indicator {
+            font-size: 0.7rem; color: #4a5568; font-style: italic; cursor: help;
+        }
 
         @media print {
             body { margin: 0; padding: 0; -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
@@ -89,19 +92,10 @@
         <div id="help-button" class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg cursor-pointer select-none">?</div>
         <div id="help-tooltip" class="absolute bottom-0 left-20 w-96 p-4 bg-gray-800 text-white text-sm rounded-lg shadow-xl opacity-0 invisible transition-all duration-300 transform -translate-x-4">
             <h4 class="font-bold mb-3 text-base border-b border-gray-600 pb-2">Guia Rápido da Ferramenta</h4>
-            
-            <p class="font-semibold text-blue-300 mb-1">1. Criando Itens</p>
             <ul class="list-disc list-inside space-y-2 pl-2 text-xs">
-                <li><b>Configure a Etiqueta:</b> Defina todas as propriedades da etiqueta: <b>Largura</b>, <b>Altura</b>, <b>Fonte</b>, <b>Espaçamento</b> e a <b>Data</b> (opcional).</li>
-                <li><b>Adicione o Conteúdo:</b> Use <b>'+ Adicionar Nova Linha'</b> para criar os campos de texto com seus estilos e alinhamentos.</li>
-                <li><b>Adicione à Folha:</b> Clique em <b>'Adicionar Etiqueta'</b>. As configurações atuais serão salvas com essa etiqueta. O formulário não é limpo, facilitando a criação de etiquetas sequenciais.</li>
-            </ul>
-
-            <p class="font-semibold text-blue-300 mt-4 mb-1">2. Edição e Impressão</p>
-            <ul class="list-disc list-inside space-y-2 pl-2 text-xs">
-                <li><b>Edição Individual:</b> Passe o mouse sobre uma etiqueta e clique no lápis (✏️) para carregar seus dados no formulário e editá-la.</li>
-                <li><b>Edição em Massa:</b> Marque a caixa de seleção no canto das etiquetas que deseja alterar. Um painel de <b>'Edição em Massa'</b> aparecerá. Defina a nova fonte/espaçamento e clique em <b>'Aplicar'</b>.</li>
-                <li><b>Imprimir:</b> Após organizar sua folha, clique em <b>'Imprimir Folha'</b>.</li>
+                <li><b>Fonte Automática:</b> Ao mudar a <b>Altura</b> da etiqueta ou adicionar/remover linhas, a <b>Fonte</b> e o <b>Espaçamento</b> são calculados automaticamente para um bom ajuste. Você pode sempre digitar um valor diferente para um ajuste manual.</li>
+                <li><b>Pré-visualização Real:</b> A folha de visualização agora mostra as etiquetas com o tamanho de fonte real, para você saber exatamente como ficará.</li>
+                <li><b>Edição em Massa:</b> Marque as caixas de seleção das etiquetas que deseja alterar. Um painel de <b>'Edição em Massa'</b> aparecerá para aplicar mudanças de fonte a todas de uma vez.</li>
             </ul>
         </div>
     </div>
@@ -122,11 +116,11 @@
                            <input type="number" id="labelHeight" value="10" step="1" min="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 h-10">
                        </div>
                        <div>
-                            <label for="labelFontSize" class="block text-sm font-medium text-gray-700">Fonte (pt):</label>
+                            <label for="labelFontSize" class="block text-sm font-medium text-gray-700">Fonte (pt): <span id="fontSizeAutoIndicator" class="auto-indicator" title="Calculado automaticamente. Edite para controle manual.">(auto)</span></label>
                             <input type="number" id="labelFontSize" value="6" step="0.1" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 h-10">
                         </div>
                         <div>
-                            <label for="labelLineHeight" class="block text-sm font-medium text-gray-700">Espaç. Linhas (x):</label>
+                            <label for="labelLineHeight" class="block text-sm font-medium text-gray-700">Espaç. Linhas (x): <span id="lineHeightAutoIndicator" class="auto-indicator" title="Calculado automaticamente. Edite para controle manual.">(auto)</span></label>
                             <input type="number" id="labelLineHeight" value="1.0" step="0.1" min="0.5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 h-10">
                         </div>
                     </div>
@@ -216,6 +210,8 @@
             const labelFontSizeInput = document.getElementById('labelFontSize');
             const labelLineHeightInput = document.getElementById('labelLineHeight');
             const dynamicPrintStylesTag = document.getElementById('dynamicPrintStyles');
+            const fontSizeAutoIndicator = document.getElementById('fontSizeAutoIndicator');
+            const lineHeightAutoIndicator = document.getElementById('lineHeightAutoIndicator');
 
             const bulkEditPanel = document.getElementById('bulkEditPanel');
             const bulkFontSizeInput = document.getElementById('bulkFontSize');
@@ -227,6 +223,22 @@
             let editingLabelId = null; 
 
             const escapeHtml = (unsafe) => (unsafe ?? '').toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+
+            const calculateAndSetAutoSize = () => {
+                const height = parseFloat(labelHeightInput.value) || 10;
+                const numLines = lineInputsContainer.childElementCount || 1;
+                const verticalPadding = 2; // mm
+                const scalingFactor = 3; // Heuristic factor to convert mm/line to pt
+
+                if (height > verticalPadding) {
+                    let newSize = ((height - verticalPadding) / numLines) * scalingFactor;
+                    newSize = Math.max(2, Math.min(30, newSize)); // Clamp between 2pt and 30pt
+                    labelFontSizeInput.value = newSize.toFixed(1);
+                    labelLineHeightInput.value = 1.15;
+                    fontSizeAutoIndicator.style.display = 'inline';
+                    lineHeightAutoIndicator.style.display = 'inline';
+                }
+            };
 
             const createLineInputBlock = (lineData = { text: '', bold: false, italic: false, underline: false, align: 'left' }) => {
                 const lineId = 'line-' + Date.now() + Math.random();
@@ -250,7 +262,10 @@
                     </button>
                 `;
                 div.querySelector('.remove-line-btn').addEventListener('click', () => {
-                    if (lineInputsContainer.childElementCount > 1) div.remove();
+                    if (lineInputsContainer.childElementCount > 1) {
+                        div.remove();
+                        calculateAndSetAutoSize();
+                    }
                 });
                 lineInputsContainer.appendChild(div);
             };
@@ -288,10 +303,13 @@
                 } else {
                     createLineInputBlock();
                 }
+                fontSizeAutoIndicator.style.display = 'none';
+                lineHeightAutoIndicator.style.display = 'none';
             };
             
             const clearLabelForm = () => {
                 setLabelFormInputs(null);
+                calculateAndSetAutoSize();
                 dateInput.focus();
             }
 
@@ -405,13 +423,18 @@
                 selectAllCheckbox.checked = false;
             });
 
-            addNewLineBtn.addEventListener('click', () => createLineInputBlock());
+            addNewLineBtn.addEventListener('click', () => {
+                createLineInputBlock();
+                calculateAndSetAutoSize();
+            });
 
             addLabelBtn.addEventListener('click', () => {
                 const currentData = getLabelFormInputs();
                 if (editingLabelId !== null) {
                     const itemIndex = printItems.findIndex(item => item.id === editingLabelId);
-                    if (itemIndex > -1) printItems[itemIndex] = { ...printItems[itemIndex], ...currentData };
+                    if (itemIndex > -1) {
+                         printItems[itemIndex] = { ...printItems[itemIndex], ...currentData };
+                    }
                     editingLabelId = null; 
                     addLabelBtn.textContent = 'Adicionar Etiqueta à Folha'; 
                     addLabelBtn.classList.remove('bg-yellow-500'); 
@@ -500,6 +523,16 @@
                 window.print(); 
             });
             
+            // Auto-size listeners
+            [labelHeightInput].forEach(input => input.addEventListener('input', calculateAndSetAutoSize));
+            [labelFontSizeInput, labelLineHeightInput].forEach(input => {
+                input.addEventListener('input', () => {
+                    fontSizeAutoIndicator.style.display = 'none';
+                    lineHeightAutoIndicator.style.display = 'none';
+                });
+            });
+
+            // Initial setup
             clearLabelForm();
             renderPreview();
         });
