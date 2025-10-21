@@ -11,18 +11,20 @@
             position: relative;
         }
         .label-preview-item {
-            border: 1px dashed #cbd5e0; background-color: #f7fafc;
+            border: 1px solid #a0aec0; /* Borda sólida para preview fiel */
+            background-color: #f7fafc;
             margin: 2px; box-sizing: border-box;
             overflow: hidden; display: flex; 
+            cursor: pointer;
         }
         .date-area {
             writing-mode: vertical-rl; transform: rotate(180deg); text-orientation: mixed;
             display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; text-align: center; font-size: 0.9em;
+            flex-shrink: 0; text-align: center;
         }
         .lines-area {
             display: flex; flex-direction: column; justify-content: center;
-            flex-grow: 1; overflow: hidden; padding-left: 1mm;
+            flex-grow: 1; overflow: hidden; padding-left: 0.2mm;
         }
         .lines-area .line {
             width: 100%; overflow: hidden; text-overflow: ellipsis;
@@ -53,6 +55,16 @@
         .auto-indicator {
             font-size: 0.7rem; color: #4a5568; font-style: italic; cursor: help;
         }
+        #zoom-preview {
+            position: fixed;
+            display: none;
+            border: 2px solid #3b82f6;
+            background-color: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            pointer-events: none;
+            z-index: 100;
+            transform-origin: top left;
+        }
 
         @media print {
             body { margin: 0; padding: 0; -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
@@ -67,16 +79,13 @@
             }
             #a4PreviewContainer > .label-preview-item {
                 border: 0.1mm solid black !important;
-                background-color: white !important; margin: 2px !important; 
+                background-color: white !important; margin: 0 !important; 
                 box-sizing: border-box !important; overflow: hidden !important; display: flex !important;
                 page-break-inside: avoid !important; color: black !important;
             }
             #a4PreviewContainer > .separator-preview-item {
                 width: 100% !important; margin: 4mm 0 !important; font-size: 11pt !important;
                 page-break-after: avoid !important;
-            }
-            .date-area {
-                border-right: 0.1mm solid black !important;
             }
             .lines-area .line {
                 width: 100% !important; overflow: hidden !important; text-overflow: ellipsis !important;
@@ -92,13 +101,24 @@
         <div id="help-button" class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg cursor-pointer select-none">?</div>
         <div id="help-tooltip" class="absolute bottom-0 left-20 w-96 p-4 bg-gray-800 text-white text-sm rounded-lg shadow-xl opacity-0 invisible transition-all duration-300 transform -translate-x-4">
             <h4 class="font-bold mb-3 text-base border-b border-gray-600 pb-2">Guia Rápido da Ferramenta</h4>
+            
+            <p class="font-semibold text-blue-300 mb-1">1. Criando uma Etiqueta</p>
             <ul class="list-disc list-inside space-y-2 pl-2 text-xs">
-                <li><b>Fonte Automática:</b> Ao mudar a <b>Altura</b> da etiqueta ou adicionar/remover linhas, a <b>Fonte</b> e o <b>Espaçamento</b> são calculados automaticamente para um bom ajuste. Você pode sempre digitar um valor diferente para um ajuste manual.</li>
-                <li><b>Pré-visualização Real:</b> A folha de visualização agora mostra as etiquetas com o tamanho de fonte real, para você saber exatamente como ficará.</li>
-                <li><b>Edição em Massa:</b> Marque as caixas de seleção das etiquetas que deseja alterar. Um painel de <b>'Edição em Massa'</b> aparecerá para aplicar mudanças de fonte a todas de uma vez.</li>
+                <li><b>Fonte Automática:</b> Ao mudar a <b>Altura</b> da etiqueta ou adicionar/remover linhas, a <b>Fonte Principal</b> e o <b>Espaçamento</b> são calculados automaticamente. Você pode sempre editar para um ajuste manual.</li>
+                <li><b>Conteúdo:</b> Preencha a <b>Data</b> (opcional para a coluna vertical) e use <b>'+ Adicionar Nova Linha'</b> para o texto.</li>
+                <li><b>Ajuste Fino (Opcional):</b> Para um controle total, você pode definir um tamanho de <b>Fonte</b> específico para cada linha individualmente. Deixe em branco para usar a fonte principal da etiqueta.</li>
+            </ul>
+
+            <p class="font-semibold text-blue-300 mt-4 mb-1">2. Montando e Imprimindo a Folha</p>
+            <ul class="list-disc list-inside space-y-2 pl-2 text-xs">
+                 <li><b>Adicionar Itens:</b> Clique em <b>'Adicionar Etiqueta'</b> ou <b>'Adicionar Separador'</b> para montar sua folha na área de pré-visualização.</li>
+                <li><b>Pré-visualização Fiel:</b> A folha de visualização é WYSIWYG ("O que você vê é o que você obtém"). Use a <b>Lupa</b> (passando o mouse sobre uma etiqueta) para inspecionar os detalhes.</li>
+                <li><b>Edição em Massa:</b> Marque as caixas de seleção das etiquetas e use o painel de <b>'Edição em Massa'</b> para aplicar mudanças de fonte a todas de uma vez.</li>
             </ul>
         </div>
     </div>
+    
+    <div id="zoom-preview"></div>
 
     <div class="container mx-auto p-4 md:p-8 max-w-5xl">
         <div id="controlsArea" class="mb-6">
@@ -116,7 +136,7 @@
                            <input type="number" id="labelHeight" value="10" step="1" min="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 h-10">
                        </div>
                        <div>
-                            <label for="labelFontSize" class="block text-sm font-medium text-gray-700">Fonte (pt): <span id="fontSizeAutoIndicator" class="auto-indicator" title="Calculado automaticamente. Edite para controle manual.">(auto)</span></label>
+                            <label for="labelFontSize" class="block text-sm font-medium text-gray-700">Fonte Principal (pt): <span id="fontSizeAutoIndicator" class="auto-indicator" title="Calculado automaticamente. Edite para controle manual.">(auto)</span></label>
                             <input type="number" id="labelFontSize" value="6" step="0.1" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 h-10">
                         </div>
                         <div>
@@ -218,6 +238,8 @@
             const bulkLineHeightInput = document.getElementById('bulkLineHeight');
             const applyBulkEditBtn = document.getElementById('applyBulkEditBtn');
             const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            
+            const zoomPreview = document.getElementById('zoom-preview');
 
             let printItems = []; 
             let editingLabelId = null; 
@@ -240,12 +262,17 @@
                 }
             };
 
-            const createLineInputBlock = (lineData = { text: '', bold: false, italic: false, underline: false, align: 'left' }) => {
+            const createLineInputBlock = (lineData = { text: '', bold: false, italic: false, underline: false, align: 'left', fontSize: '' }) => {
                 const lineId = 'line-' + Date.now() + Math.random();
                 const div = document.createElement('div');
                 div.className = 'line-input-group border border-gray-200 p-3 rounded-md relative';
                 div.innerHTML = `
-                    <input type="text" value="${escapeHtml(lineData.text)}" class="mt-1 block w-full rounded-md border-gray-300 p-2 h-10" placeholder="Texto da linha...">
+                    <div class="flex gap-4">
+                        <input type="text" value="${escapeHtml(lineData.text)}" class="text-input mt-1 block w-full rounded-md border-gray-300 p-2 h-10" placeholder="Texto da linha...">
+                        <div class="w-24">
+                             <input type="number" value="${lineData.fontSize || ''}" class="line-font-size-input mt-1 block w-full rounded-md border-gray-300 p-2 h-10 text-sm" placeholder="Fonte (pt)">
+                        </div>
+                    </div>
                     <div class="mt-2 flex flex-wrap gap-x-4 gap-y-2 items-center">
                         <label class="style-option-label"><input type="checkbox" ${lineData.bold ? 'checked' : ''} class="bold-cb form-checkbox h-4 w-4"><span class="ml-1 font-semibold">N</span></label>
                         <label class="style-option-label"><input type="checkbox" ${lineData.italic ? 'checked' : ''} class="italic-cb form-checkbox h-4 w-4"><span class="ml-1 italic">I</span></label>
@@ -274,11 +301,12 @@
                 const lines = [];
                 lineInputsContainer.querySelectorAll('.line-input-group').forEach(group => {
                     lines.push({
-                        text: group.querySelector('input[type="text"]').value,
+                        text: group.querySelector('.text-input').value,
                         bold: group.querySelector('.bold-cb').checked,
                         italic: group.querySelector('.italic-cb').checked,
                         underline: group.querySelector('.underline-cb').checked,
                         align: group.querySelector('input[type="radio"]:checked')?.value || 'left',
+                        fontSize: group.querySelector('.line-font-size-input').value
                     });
                 });
                 return { 
@@ -335,10 +363,12 @@
                             linesArea.className = 'lines-area';
 
                             if (item.date && item.date.trim() !== '') {
+                                const dateFontSize = Math.min(parseFloat(item.fontSize) * 0.9, 7);
+                                dateArea.style.fontSize = `${dateFontSize}pt`;
                                 dateArea.textContent = escapeHtml(item.date);
                                 dateArea.style.width = '4mm';
                                 dateArea.style.padding = '0.5mm';
-                                dateArea.style.borderRight = '1px dashed #ccc';
+                                dateArea.style.borderRight = '1px solid #a0aec0';
                             }
                             
                             item.lines.forEach(lineData => {
@@ -349,6 +379,9 @@
                                 lineDiv.style.textDecoration = lineData.underline ? 'underline' : 'none';
                                 lineDiv.style.textAlign = lineData.align || 'left';
                                 lineDiv.style.lineHeight = item.lineHeight;
+                                if (lineData.fontSize) {
+                                    lineDiv.style.fontSize = `${lineData.fontSize}pt`;
+                                }
                                 lineDiv.textContent = escapeHtml(lineData.text);
                                 linesArea.appendChild(lineDiv);
                             });
@@ -496,12 +529,24 @@
                 printItems.forEach(item => {
                     if (item.type === 'label') {
                         let dateAreaStyle = '';
+                        const dateFontSize = Math.min(parseFloat(item.fontSize) * 0.9, 7);
                         if (item.date && item.date.trim() !== '') {
                             dateAreaStyle = `
                                 border-right: 0.1mm solid black !important;
                                 padding: 0.5mm !important;
+                                font-size: ${dateFontSize}pt !important;
                             `;
                         }
+
+                        let lineStyles = '';
+                        item.lines.forEach((line, index) => {
+                            if (line.fontSize) {
+                                lineStyles += `
+                                #a4PreviewContainer > .label-preview-item[data-id="${item.id}"] .lines-area .line:nth-child(${index + 1}) {
+                                    font-size: ${line.fontSize}pt !important;
+                                }`;
+                            }
+                        });
 
                         dynamicStyles += `
                         #a4PreviewContainer > .label-preview-item[data-id="${item.id}"] { 
@@ -513,8 +558,9 @@
                         #a4PreviewContainer > .label-preview-item[data-id="${item.id}"] > .date-area { 
                             ${dateAreaStyle} 
                         }
-                        #a4PreviewContainer > .label-preview-item[data-id="${item.id}"] > .lines-area { padding-left: 1mm !important; }
+                        #a4PreviewContainer > .label-preview-item[data-id="${item.id}"] > .lines-area { padding-left: 0.2mm !important; }
                         #a4PreviewContainer > .label-preview-item[data-id="${item.id}"] .line { line-height: ${item.lineHeight} !important; }
+                        ${lineStyles}
                         `;
                     }
                 });
@@ -531,6 +577,63 @@
                     lineHeightAutoIndicator.style.display = 'none';
                 });
             });
+            
+            // Zoom preview listener
+            a4PreviewContainer.addEventListener('mouseover', e => {
+                const targetLabel = e.target.closest('.label-preview-item');
+                if (!targetLabel) {
+                    zoomPreview.style.display = 'none';
+                    return;
+                }
+                
+                const scale = 5;
+                const rect = targetLabel.getBoundingClientRect();
+                
+                zoomPreview.innerHTML = '';
+                const clone = targetLabel.cloneNode(true);
+                clone.querySelector('.item-controls').remove();
+                clone.querySelector('.item-selection-checkbox').remove();
+                clone.style.border = 'none';
+                
+                zoomPreview.appendChild(clone);
+                zoomPreview.style.display = 'block';
+                zoomPreview.style.width = `${rect.width}px`;
+                zoomPreview.style.height = `${rect.height}px`;
+                zoomPreview.style.transform = `scale(${scale})`;
+
+                let top = e.clientY + 20;
+                let left = e.clientX + 20;
+
+                if (left + (rect.width * scale) > window.innerWidth) {
+                    left = e.clientX - (rect.width * scale) - 20;
+                }
+                if (top + (rect.height * scale) > window.innerHeight) {
+                    top = e.clientY - (rect.height * scale) - 20;
+                }
+
+                zoomPreview.style.top = `${top}px`;
+                zoomPreview.style.left = `${left}px`;
+            });
+
+            a4PreviewContainer.addEventListener('mouseout', () => {
+                zoomPreview.style.display = 'none';
+            });
+            
+            a4PreviewContainer.addEventListener('mousemove', e => {
+                 let top = e.clientY + 20;
+                let left = e.clientX + 20;
+                const rect = zoomPreview.getBoundingClientRect();
+
+                if (left + rect.width > window.innerWidth) {
+                    left = e.clientX - rect.width - 20;
+                }
+                if (top + rect.height > window.innerHeight) {
+                    top = e.clientY - rect.height - 20;
+                }
+                zoomPreview.style.top = `${top}px`;
+                zoomPreview.style.left = `${left}px`;
+            });
+
 
             // Initial setup
             clearLabelForm();
@@ -539,3 +642,4 @@
     </script>
 </body>
 </html>
+
